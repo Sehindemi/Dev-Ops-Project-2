@@ -31,7 +31,8 @@ resource "aws_instance" "demo-server" {
   ami = data.aws_ami.my-ami.id
   instance_type = "t2.micro"
   key_name = "dpp"
-  security_groups = [aws_security_group.demo-sg.id]
+  vpc_security_group_ids = [aws_security_group.demo-sg.id]
+
 }
 
 resource "aws_security_group" "demo-sg" {
