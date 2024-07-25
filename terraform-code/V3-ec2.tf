@@ -32,19 +32,26 @@ data "aws_ami" "my-ami" {
 }
 
 resource "aws_instance" "demi-server" {
-  
   depends_on = [ aws_security_group.demi-sg ]
   ami = data.aws_ami.my-ami.id
   instance_type = "t2.micro"
   key_name = "dpp"
   vpc_security_group_ids = [aws_security_group.demi-sg.id]
   subnet_id = aws_subnet.demi-public-subnet-1.id
-  for_each = toset(["Jenkins-master","Build-slave", "Ansible"])  
+  for_each = toset(["Jenkins-Master","Build-Slave", "Ansible"])  
   tags = {
     Name = "${each.key}"
   }
 }
 
+resource "aws_eip" "lb" {
+  for_each = aws_instance.demi-server
+  instance = each.value.id
+  domain   = "vpc"
+  tags = {
+    Name = "${each.key}-eip"
+  }
+}
 resource "aws_security_group" "demi-sg" {
   name        = "demo-sg"
   description = "SSH Access"
